@@ -11,7 +11,7 @@ Requirements:
 - SDL3
 
 ## Commands
-Compile:
+Compile (executable will appear in ./build):
 
 `cmake -S . -B build ; make -C build`
 
