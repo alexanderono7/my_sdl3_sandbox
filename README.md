@@ -14,6 +14,7 @@ Requirements:
 Compile:
 
 `cmake -S . -B build ; make -C build`
+
 Run:
 
 `./build/hello`
