@@ -10,6 +10,7 @@
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include <stdio.h>
 
 /* We will use this renderer to draw into this window every frame. */
 static SDL_Window *window = NULL;
@@ -17,6 +18,49 @@ static SDL_Renderer *renderer = NULL;
 
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
+
+// Source - https://stackoverflow.com/a/48291620
+// Posted by Scotty Stephens, modified by community. See post 'Timeline' for change history
+// Retrieved 2026-03-28, License - CC BY-SA 4.0
+
+// DRAW CIRCLE
+void DrawCircle(SDL_Renderer * renderer, int32_t centreX, int32_t centreY, int32_t radius)
+{
+   const int32_t diameter = (radius * 2);
+
+   int32_t x = (radius - 1);
+   int32_t y = 0;
+   int32_t tx = 1;
+   int32_t ty = 1;
+   int32_t error = (tx - diameter);
+
+   while (x >= y)
+   {
+      //  Each of the following renders an octant of the circle
+      SDL_RenderPoint(renderer, centreX + x, centreY - y);
+      SDL_RenderPoint(renderer, centreX + x, centreY + y);
+      SDL_RenderPoint(renderer, centreX - x, centreY - y);
+      SDL_RenderPoint(renderer, centreX - x, centreY + y);
+      SDL_RenderPoint(renderer, centreX + y, centreY - x);
+      SDL_RenderPoint(renderer, centreX + y, centreY + x);
+      SDL_RenderPoint(renderer, centreX - y, centreY - x);
+      SDL_RenderPoint(renderer, centreX - y, centreY + x);
+
+      if (error <= 0)
+      {
+         ++y;
+         error += ty;
+         ty += 2;
+      }
+
+      if (error > 0)
+      {
+         --x;
+         tx += 2;
+         error += (tx - diameter);
+      }
+   }
+}
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -43,6 +87,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
     if (event->type == SDL_EVENT_QUIT) {
         return SDL_APP_SUCCESS;  /* end the program, reporting success to the OS. */
     }
+
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }
 
@@ -52,6 +97,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     SDL_FRect rects[16];
     const Uint64 now = SDL_GetTicks();
     int i;
+
 
     /* we'll have the rectangles grow and shrink over a few seconds. */
     const float direction = ((now % 2000) >= 1000) ? 1.0f : -1.0f;
@@ -71,6 +117,9 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     rects[0].w = rects[0].h = 100 + (100 * scale);
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);  /* red, full alpha */
     SDL_RenderRect(renderer, &rects[0]);
+
+    DrawCircle(renderer, 10, 10, 10);
+    printf("Hello World");
 
     /* Now let's draw several rectangles with one function call. */
     for (i = 0; i < 3; i++) {
